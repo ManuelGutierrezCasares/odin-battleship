@@ -1,4 +1,4 @@
-import { compareArrays, TOKENS } from './helpers.js';
+import { compareArrays, SHIP_TYPES, TOKENS } from './helpers.js';
 
 export class Ship {
   constructor (length) {
@@ -98,7 +98,7 @@ export class Gameboard {
     if (length !== arrOfPos.length) throw new Error('Incorrect length of ship or amount of tiles taken by ship');
 
     // Check if length of ship is ok
-    if (length > 4 || length < 1) throw new Error('Ship cannot be bigger than 4 nor smaller than 1');
+    if (length > SHIP_TYPES.maxLength || length < SHIP_TYPES.minLength) throw new Error('Ship cannot be bigger than 4 nor smaller than 1');
   }
 
   #validatePositions (arrOfPos) {
@@ -114,7 +114,7 @@ export class Gameboard {
     });
 
     // Check if Ship positions are legal
-    if (arrOfPos.length > 1) {
+    if (arrOfPos.length > SHIP_TYPES.minLength) {
       const direction = arrOfPos[0][0] + 1 === arrOfPos[1][0] ? 'vertical' : 'horizontal';
       for (let i = 0; i < arrOfPos.length - 1; i++) {
         if (!this.#shipPlacement(direction, arrOfPos[i], arrOfPos[i + 1])) throw new Error('Ship must be placed one tile next to other');
@@ -179,7 +179,9 @@ export class Gameboard {
 }
 
 export class Player {
-  constructor () {
+  // CHECK LOGIC BOTH KEYBOARDS ON EACH PLAYER
+  constructor (computer = false) {
+    this.isComputer = computer;
     this.ownGameboard = new Gameboard();
     this.enemyGameboard = new Gameboard();
   }
@@ -187,5 +189,54 @@ export class Player {
   attackEnemy (player, position) {
     this.enemyGameboard.receiveAttack(position);
     player.ownGameboard.receiveAttack(position);
+  }
+
+  // TODO
+  gameInit (player) {
+
+  }
+
+  #placeShipRandomPosition (ship) {
+    const shipRandomPosition = this.#createRandomPositions(ship.length);
+    console.log(shipRandomPosition);
+    this.ownGameboard.placeShip(ship.length, shipRandomPosition);
+  }
+
+  // REFACTOR
+  #createRandomPositions (shipLength) {
+    // NEED REFACTOR
+    const arrOfPos = [];
+    const direction = this.#getRandomDirection() ? 'vertical' : 'horizontal';
+    const pos = this.#getRandomStartPosition(10 - shipLength);
+    const newPos = pos.toString().split(',');
+    newPos.forEach((e, index) => { newPos[index] = Number.parseInt(e); });
+    arrOfPos.push(newPos);
+    switch (direction) {
+      case 'vertical':
+        for (let i = 0; i < shipLength - 1; i++) {
+          const newPos = [pos[0] += 1, pos[1]];
+          arrOfPos.push(newPos);
+        }
+        break;
+      case 'horizontal':
+        for (let i = 0; i < shipLength - 1; i++) {
+          const newPos = [pos[0], pos[1] += 1];
+          arrOfPos.push(newPos);
+        }
+        break;
+      default:
+        throw new Error('Wrong direction');
+    }
+    return arrOfPos;
+  }
+
+  #getRandomDirection () {
+    return !!Math.round(Math.random());
+  }
+
+  // TODO
+  #getRandomStartPosition (max) {
+    const randomX = Math.floor(Math.random() * max + 1); const randomY = Math.floor(Math.random() * max + 1);
+    return [randomX, randomY];
   }
 }

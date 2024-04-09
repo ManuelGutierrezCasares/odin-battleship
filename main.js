@@ -1,7 +1,20 @@
 import { Player } from './classes.js';
+import { SHIP_TYPES } from './helpers.js';
 
 const player = new Player();
-const foe = new Player();
+const foe = new Player(true);
+
+console.log('this is player ', player);
+console.log('this is foe ', foe);
+
+foe.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship);
+
+player.attackEnemy(foe, [2, 3]);
+
+console.log('this is player ', player);
+console.log('this is foe ', foe);
+
+/* console.log(player, foe);
 console.log(JSON.stringify(player));
 
 player.ownGameboard.placeShip(3, [[0, 0], [0, 1], [0, 2]]);
@@ -11,8 +24,6 @@ foe.enemyGameboard.placeShip(2, [[7, 0], [7, 1]]);
 
 foe.ownGameboard.placeShip(3, [[3, 4], [3, 5], [3, 6]]);
 player.enemyGameboard.placeShip(3, [[3, 4], [3, 5], [3, 6]]);
-// foe.ownGameboard.placeShip(2, [[5, 0], [6, 0]]);
-// player.enemyGameboard.placeShip(2, [[5, 0], [6, 0]]);
 
 player.attackEnemy(foe, [7, 9]);
 foe.attackEnemy(player, [0, 0]);
@@ -24,7 +35,7 @@ console.log('this is foe enemy gameboard ', foe.enemyGameboard);
 
 console.log(JSON.stringify(player.ownGameboard) === JSON.stringify(foe.enemyGameboard));
 console.log(JSON.stringify(player.enemyGameboard) === JSON.stringify(foe.ownGameboard));
-console.log(JSON.stringify(player.ownGameboard) === JSON.stringify(foe.ownGameboard));
+console.log(JSON.stringify(player.ownGameboard) === JSON.stringify(foe.ownGameboard)); */
 
 /*
 gb.placeShip(2, [[0, 1], [0, 2]]);
