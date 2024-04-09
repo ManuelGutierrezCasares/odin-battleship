@@ -22,7 +22,51 @@ export class Gameboard {
   constructor () {
     this.board = this.#createBoard();
     this.ships = [];
-    this.miss = {};
+    this.miss = [];
+  }
+
+  placeShip (length, arrOfPos) {
+    this.#validateShip(length, arrOfPos);
+    this.#validatePositions(arrOfPos);
+    this.#validateEmptyTiles(arrOfPos);
+    const shipObj = this.#createShipObject(length, arrOfPos);
+    this.ships.push(shipObj);
+    arrOfPos.forEach(pos => {
+      this.#placeTokenOnBoard(TOKENS.ship, pos);
+    });
+
+    return shipObj;
+  }
+
+  receiveAttack (position) {
+    // Correct Usage
+    if (!this.#checkPositionFormat(position)) {
+      throw new Error('Position format is not correct');
+    } else {
+      // Validate position inside board
+      if (this.#positionOutOfBoard(position)) throw new Error('Cannot attack out of board');
+      // Validations
+      if (this.#checkTokenTile(TOKENS.hit, position) || this.#checkTokenTile(TOKENS.miss, position)) throw new Error('Tile unavailable');
+
+      // Check for miss hit
+      if (this.#checkTokenTile(TOKENS.empty, position)) {
+        this.#placeTokenOnBoard(TOKENS.miss, position);
+        this.#registerMiss(position);
+        return false;
+      }
+      // Check for ship hit
+      if (this.#checkTokenTile(TOKENS.ship, position)) {
+        this.#placeTokenOnBoard(TOKENS.hit, position);
+        this.#registerShipHit(position);
+        return true;
+      }
+    }
+  }
+
+  allSunk () {
+    const sunkShips = this.ships.filter(ship => ship.shipObject.isSunk());
+    if (sunkShips.length === this.ships.length) return true;
+    return false;
   }
 
   // DELETE BEFORE DEPLOY
@@ -49,18 +93,6 @@ export class Gameboard {
     return board;
   }
 
-  placeShip (length, arrOfPos) {
-    this.#validateShip(length, arrOfPos);
-    this.#validatePosition(arrOfPos);
-    const shipObj = {
-      ship: new Ship(length),
-      pos: arrOfPos
-    };
-    this.ships.push(shipObj);
-    this.#placeShipOnBoard(arrOfPos);
-    return shipObj;
-  }
-
   #validateShip (length, arrOfPos) {
     // Check if length of ship is different from amount of tiles taken
     if (length !== arrOfPos.length) throw new Error('Incorrect length of ship or amount of tiles taken by ship');
@@ -69,7 +101,7 @@ export class Gameboard {
     if (length > 4 || length < 1) throw new Error('Ship cannot be bigger than 4 nor smaller than 1');
   }
 
-  #validatePosition (arrOfPos) {
+  #validatePositions (arrOfPos) {
     // Check if same position is placed twice - can be removed if legal check of positions is moved up
     for (let i = 0; i < arrOfPos.length - 1; i++) {
       for (let j = i + 1; j < arrOfPos.length; j++) {
@@ -78,10 +110,7 @@ export class Gameboard {
     }
 
     arrOfPos.forEach(pos => {
-      // Check if ship is out of board
-      if ((pos[0] > 9 || pos[1] > 9) || (pos[0] < 0 || pos[1] < 0)) throw new Error('Ship cannot be placed out of board');
-      // Check if tile is occupied
-      if (!this.#tileAvailable(pos)) throw new Error('Tile is not available');
+      if (this.#positionOutOfBoard(pos)) throw new Error('Ship cannot be placed out of board');
     });
 
     // Check if Ship positions are legal
@@ -93,9 +122,23 @@ export class Gameboard {
     }
   }
 
-  #tileAvailable (pos) {
+  #validateEmptyTiles (arrOfPos) {
+    arrOfPos.forEach(pos => {
+      // Check if tile is occupied
+      if (!this.#checkTokenTile(TOKENS.empty, pos)) throw new Error('Tile is not available');
+    });
+  }
+
+  #createShipObject (length, arrOfPos) {
+    return {
+      shipObject: new Ship(length),
+      positions: arrOfPos
+    };
+  }
+
+  #checkTokenTile (token, pos) {
     const x = pos[0]; const y = pos[1];
-    if (this.board[x][y] === TOKENS.empty) return true;
+    if (this.board[x][y] === token) return true;
     return false;
   }
 
@@ -105,14 +148,44 @@ export class Gameboard {
     return false;
   }
 
-  #placeShipOnBoard (pos) {
+  #positionOutOfBoard (pos) {
+    // Check if ship is out of board
+    if ((pos[0] > 9 || pos[1] > 9) || (pos[0] < 0 || pos[1] < 0)) return true;
+    return false;
+  }
+
+  #checkPositionFormat (position) {
+    if (Array.isArray(position) && position.length === 2 && Number.isInteger(position[0]) && Number.isInteger(position[1])) return true;
+    return false;
+  }
+
+  #placeTokenOnBoard (token, pos) {
     // Place ship on board
-    pos.forEach(e => {
-      const x = e[0]; const y = e[1];
-      this.board[x][y] = TOKENS.ship;
+    const x = pos[0]; const y = pos[1];
+    this.board[x][y] = token;
+  }
+
+  #registerMiss (pos) {
+    this.miss.push([pos]);
+  }
+
+  #registerShipHit (position) {
+    this.ships.forEach(ship => {
+      ship.positions.forEach(pos => {
+        if (compareArrays(pos, position)) ship.shipObject.hit();
+      });
     });
   }
 }
 
-export const gb = new Gameboard();
-// console.log(gb);
+export class Player {
+  constructor () {
+    this.ownGameboard = new Gameboard();
+    this.enemyGameboard = new Gameboard();
+  }
+
+  attackEnemy (player, position) {
+    this.enemyGameboard.receiveAttack(position);
+    player.ownGameboard.receiveAttack(position);
+  }
+}
