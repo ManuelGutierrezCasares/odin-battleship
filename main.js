@@ -1,72 +1,38 @@
-import { Player } from './classes.js';
+import { Game } from './classes.js';
 import { SHIP_TYPES } from './helpers.js';
 
-const player = new Player();
-const foe = new Player(true);
+const newGame = new Game(true);
+console.log('this is newgame ', newGame);
 
-console.log('this is player ', player);
-console.log('this is foe ', foe);
+const player = newGame.player1;
+const foe = newGame.player2;
 
-foe.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship);
+player.ownGameboard.placeShip(2, [[0, 0], [1, 0]]);
 
-player.attackEnemy(foe, [2, 3]);
+console.log(player.enemyGameboard.board);
 
-console.log('this is player ', player);
-console.log('this is foe ', foe);
+foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship);
+foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.cruiser);
+foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.submarine);
+foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.patrolBoat);
 
-/* console.log(player, foe);
-console.log(JSON.stringify(player));
+console.log(foe.ownGameboard.board);
 
-player.ownGameboard.placeShip(3, [[0, 0], [0, 1], [0, 2]]);
-foe.enemyGameboard.placeShip(3, [[0, 0], [0, 1], [0, 2]]);
-player.ownGameboard.placeShip(2, [[7, 0], [7, 1]]);
-foe.enemyGameboard.placeShip(2, [[7, 0], [7, 1]]);
+// console.log('foe ', foe.ownGameboard.ships.forEach(x => x.positions.forEach(y => console.log(y))));
+// console.log('player ', player.enemyGameboard.ships.forEach(x => x.positions.forEach(y => console.log(y))));
 
-foe.ownGameboard.placeShip(3, [[3, 4], [3, 5], [3, 6]]);
-player.enemyGameboard.placeShip(3, [[3, 4], [3, 5], [3, 6]]);
+console.log('player is attacking foe on 1,6: ', player.attackEnemy(foe, [1, 6]));
 
-player.attackEnemy(foe, [7, 9]);
-foe.attackEnemy(player, [0, 0]);
+console.log('Foe is attacking player on 3,8: ', foe.attackEnemy(player, [3, 8]));
 
-console.log('this is player own gameboard ', player.ownGameboard);
-console.log('this is player enemy gameboard ', player.enemyGameboard);
-console.log('this is foe own gameboard ', foe.ownGameboard);
-console.log('this is foe enemy gameboard ', foe.enemyGameboard);
+console.log('Foe is attacking player on 0,0: ', foe.attackEnemy(player, [0, 0]));
 
-console.log(JSON.stringify(player.ownGameboard) === JSON.stringify(foe.enemyGameboard));
-console.log(JSON.stringify(player.enemyGameboard) === JSON.stringify(foe.ownGameboard));
-console.log(JSON.stringify(player.ownGameboard) === JSON.stringify(foe.ownGameboard)); */
+// const gameloop = () => {
+// 1) instantiate player
+// if x is true, instantiate player2 on PC
+// const newGame = new Game(true);
 
-/*
-gb.placeShip(2, [[0, 1], [0, 2]]);
+// 2) populate gameboards for each player
 
-gb.placeShip(4, [[4, 5], [4, 6], [4, 7], [4, 8]]);
-
-gb.placeShip(4, [[5, 3], [6, 3], [7, 3], [8, 3]]);
-
-gb.receiveAttack([0, 2]);
-
-gb.receiveAttack([0, 3]);
-
-gb.receiveAttack([5, 7]);
-gb.receiveAttack([6, 7]);
-
-gb.receiveAttack([4, 5]);
-gb.receiveAttack([4, 6]);
-gb.receiveAttack([4, 7]);
-gb.receiveAttack([4, 8]);
-
-console.log(gb);
-
-console.log('Ships are all sunk? ', gb.allSunk());
-
-gb.receiveAttack([5, 3]);
-gb.receiveAttack([6, 3]);
-gb.receiveAttack([7, 3]);
-gb.receiveAttack([8, 3]);
-
-console.log('Ships are all sunk? ', gb.allSunk());
-
-gb.receiveAttack([0, 1]);
-console.log('Ships are all sunk? ', gb.allSunk());
-*/
+//  depending on whether is a player or computer
+// 3) gameloop until allsunk

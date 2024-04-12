@@ -28,7 +28,7 @@ export class Gameboard {
   placeShip (length, arrOfPos) {
     this.#validateShip(length, arrOfPos);
     this.#validatePositions(arrOfPos);
-    this.#validateEmptyTiles(arrOfPos);
+    if (!this.#validateEmptyTiles(arrOfPos)) throw new Error('Tile is not available');
     const shipObj = this.#createShipObject(length, arrOfPos);
     this.ships.push(shipObj);
     arrOfPos.forEach(pos => {
@@ -69,17 +69,56 @@ export class Gameboard {
     return false;
   }
 
-  // DELETE BEFORE DEPLOY
-  printGameboard () {
-    for (let i = 0; i < 10; i++) {
-      console.log('ROW NUMBER ', i);
-      let row = '';
-      for (let j = 0; j < 10; j++) {
-        row += ' | ' + this.board[i][j];
+  // RANDOM POSITION STARTS HERE
+  placeShipRandomPosition (ship) {
+    try {
+      let shipRandomPosition = this.#createRandomPositions(ship.length);
+      while (!this.#validateEmptyTiles(shipRandomPosition)) {
+        shipRandomPosition = this.#createRandomPositions(ship.length);
       }
-      console.log(row);
+      return this.placeShip(ship.length, shipRandomPosition);
+    } catch (error) {
+      throw new Error(error);
     }
   }
+
+  // REFACTOR
+  #createRandomPositions (shipLength) {
+    // NEED REFACTOR
+    const arrOfPos = [];
+    const direction = this.#getRandomDirection() ? 'vertical' : 'horizontal';
+    const pos = this.#getRandomStartPosition(10 - shipLength);
+    const newPos = pos.toString().split(',');
+    newPos.forEach((e, index) => { newPos[index] = Number.parseInt(e); });
+    arrOfPos.push(newPos);
+    switch (direction) {
+      case 'vertical':
+        for (let i = 0; i < shipLength - 1; i++) {
+          const newPos = [pos[0] += 1, pos[1]];
+          arrOfPos.push(newPos);
+        }
+        break;
+      case 'horizontal':
+        for (let i = 0; i < shipLength - 1; i++) {
+          const newPos = [pos[0], pos[1] += 1];
+          arrOfPos.push(newPos);
+        }
+        break;
+      default:
+        throw new Error('Wrong direction');
+    }
+    return arrOfPos;
+  }
+
+  #getRandomDirection () {
+    return !!Math.round(Math.random());
+  }
+
+  #getRandomStartPosition (max) {
+    const randomX = Math.floor(Math.random() * max + 1); const randomY = Math.floor(Math.random() * max + 1);
+    return [randomX, randomY];
+  }
+  // RANDOM POSITION HELPERS END HERE
 
   #createBoard () {
     const board = [];
@@ -123,10 +162,10 @@ export class Gameboard {
   }
 
   #validateEmptyTiles (arrOfPos) {
-    arrOfPos.forEach(pos => {
-      // Check if tile is occupied
-      if (!this.#checkTokenTile(TOKENS.empty, pos)) throw new Error('Tile is not available');
-    });
+    for (let i = 0; i < arrOfPos.length; i++) {
+      if (!this.#checkTokenTile(TOKENS.empty, arrOfPos[i])) return false;
+    }
+    return true;
   }
 
   #createShipObject (length, arrOfPos) {
@@ -186,57 +225,26 @@ export class Player {
     this.enemyGameboard = new Gameboard();
   }
 
-  attackEnemy (player, position) {
-    this.enemyGameboard.receiveAttack(position);
-    player.ownGameboard.receiveAttack(position);
-  }
-
-  // TODO
-  gameInit (player) {
-
-  }
-
-  #placeShipRandomPosition (ship) {
-    const shipRandomPosition = this.#createRandomPositions(ship.length);
-    console.log(shipRandomPosition);
-    this.ownGameboard.placeShip(ship.length, shipRandomPosition);
-  }
-
-  // REFACTOR
-  #createRandomPositions (shipLength) {
-    // NEED REFACTOR
-    const arrOfPos = [];
-    const direction = this.#getRandomDirection() ? 'vertical' : 'horizontal';
-    const pos = this.#getRandomStartPosition(10 - shipLength);
-    const newPos = pos.toString().split(',');
-    newPos.forEach((e, index) => { newPos[index] = Number.parseInt(e); });
-    arrOfPos.push(newPos);
-    switch (direction) {
-      case 'vertical':
-        for (let i = 0; i < shipLength - 1; i++) {
-          const newPos = [pos[0] += 1, pos[1]];
-          arrOfPos.push(newPos);
-        }
-        break;
-      case 'horizontal':
-        for (let i = 0; i < shipLength - 1; i++) {
-          const newPos = [pos[0], pos[1] += 1];
-          arrOfPos.push(newPos);
-        }
-        break;
-      default:
-        throw new Error('Wrong direction');
+  attackEnemy (enemy, position) {
+    try {
+      enemy.ownGameboard.receiveAttack(position);
+      return true;
+    } catch (error) {
+      throw new Error(error);
     }
-    return arrOfPos;
+  }
+}
+
+export class Game {
+  constructor (isComputer = false) {
+    this.player1 = new Player();
+    this.player2 = new Player(isComputer);
+    this.copyPlayerKeyboards();
   }
 
-  #getRandomDirection () {
-    return !!Math.round(Math.random());
-  }
-
-  // TODO
-  #getRandomStartPosition (max) {
-    const randomX = Math.floor(Math.random() * max + 1); const randomY = Math.floor(Math.random() * max + 1);
-    return [randomX, randomY];
+  copyPlayerKeyboards () {
+    // Passing object to reference each keyboard on each player
+    this.player1.enemyGameboard = this.player2.ownGameboard;
+    this.player2.enemyGameboard = this.player1.ownGameboard;
   }
 }

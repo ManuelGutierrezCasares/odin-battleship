@@ -1,6 +1,4 @@
 export const compareArrays = (a, b) => {
-  // console.log(a, b);
-  // console.log(a.toString() === b.toString());
   return a.toString() === b.toString();
 };
 
@@ -11,7 +9,6 @@ export const TOKENS = {
   miss: 'm'
 };
 
-// TODO
 export const SHIP_TYPES = {
   availableShips: {
     battleship: {
