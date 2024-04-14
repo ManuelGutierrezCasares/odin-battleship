@@ -204,10 +204,36 @@ describe('Player Class', () => {
     });
   });
 
-  // TODO
   describe('Player action', () => {
-    describe.skip('Player attack', () => {
+    describe('PvP', () => {
+      test('Player Attack - Hits a Ship - Happy Path 1', () => {
+        const player = new Player();
+        const foe = new Player();
+        foe.ownGameboard.placeShip(2, [[0, 5], [0, 6]]);
+        expect(player.attackEnemy(foe, [0, 5])).toBe(true);
+      });
+      test('Player Attack - Hit Misses - Happy Path 2', () => {
+        const player = new Player();
+        const foe = new Player();
+        foe.ownGameboard.placeShip(2, [[0, 2], [0, 3]]);
+        expect(player.attackEnemy(foe, [0, 5])).toBe(false);
+      });
+    });
 
+    describe('PvE', () => {
+      // Would have to mock placeShipRandomPosition to test
+      /* test.skip('Player Attack - Hits a Ship - Happy Path 1', () => {
+        const player = new Player();
+        const foe = new Player();
+        foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.submarine);
+        expect(player.attackEnemy(foe, [0, 5])).toBe(true);
+      }); */
+      test('Player Attack - Hit Misses - Happy Path 2', () => {
+        const player = new Player();
+        const foe = new Player();
+        foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship);
+        expect(player.attackEnemy(foe, [1, 5])).toBe(false);
+      });
     });
   });
 });

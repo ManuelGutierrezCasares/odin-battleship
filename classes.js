@@ -70,13 +70,13 @@ export class Gameboard {
   }
 
   // RANDOM POSITION STARTS HERE
-  placeShipRandomPosition (ship) {
+  placeShipRandomPosition (shipLength) {
     try {
-      let shipRandomPosition = this.#createRandomPositions(ship.length);
+      let shipRandomPosition = this.#createRandomPositions(shipLength);
       while (!this.#validateEmptyTiles(shipRandomPosition)) {
-        shipRandomPosition = this.#createRandomPositions(ship.length);
+        shipRandomPosition = this.#createRandomPositions(shipLength);
       }
-      return this.placeShip(ship.length, shipRandomPosition);
+      return this.placeShip(shipLength, shipRandomPosition);
     } catch (error) {
       throw new Error(error);
     }
@@ -226,12 +226,9 @@ export class Player {
   }
 
   attackEnemy (enemy, position) {
-    try {
-      enemy.ownGameboard.receiveAttack(position);
-      return true;
-    } catch (error) {
-      throw new Error(error);
-    }
+    // returns true if hits a ship
+    // returns false if misses
+    return !!enemy.ownGameboard.receiveAttack(position);
   }
 }
 
@@ -239,10 +236,10 @@ export class Game {
   constructor (isComputer = false) {
     this.player1 = new Player();
     this.player2 = new Player(isComputer);
-    this.copyPlayerKeyboards();
+    this.#copyPlayerKeyboards();
   }
 
-  copyPlayerKeyboards () {
+  #copyPlayerKeyboards () {
     // Passing object to reference each keyboard on each player
     this.player1.enemyGameboard = this.player2.ownGameboard;
     this.player2.enemyGameboard = this.player1.ownGameboard;
