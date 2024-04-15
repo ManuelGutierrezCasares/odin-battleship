@@ -1,6 +1,6 @@
 import { Game } from './classes.js';
-import { convertUserInputToPosition, checkRandomPosition, getRandomPosition, getShipsToPlace, SHIP_TYPES } from './helpers.js';
-import { updateBoard } from './display.js';
+import { checkRandomPosition, getRandomPosition } from './helpers.js';
+import { display, updateBoard } from './display.js';
 
 export const gameloop = (typeOfGame = false) => {
 // 1) instantiate players
@@ -9,10 +9,13 @@ export const gameloop = (typeOfGame = false) => {
   if (typeOfGame !== true && typeOfGame !== false) throw new Error('Bad usage of Game Mode');
   const game = new Game(typeOfGame);
   console.log(game);
+  display(game);
+
+  // Populate GameBoard
 
   // 2) populate gameboards for each player
   // PvE Mode
-  const shipsToPlaceArray = getShipsToPlace(SHIP_TYPES);
+  /* const shipsToPlaceArray = getShipsToPlace(SHIP_TYPES);
 
   // Populate gameboard
   if (typeOfGame === true) {
@@ -22,11 +25,20 @@ export const gameloop = (typeOfGame = false) => {
 
       // Prompt usage x,y-x,y-x,y-...
       const shipLength = shipsToPlaceArray.shift();
-      const userInput = prompt(`Insert position to place ship of ${shipLength} blocks`);
+
+      // VALIDATE USER INPUT
+      const regexValidation1 = /(\d,\d-|\d,\d)/g;
+      let userInput = prompt(`Insert position to place ship of ${shipLength} blocks\r Usage: x,y-x,y[...]`);
+      while (!userInput.match(regexValidation1)) {
+        userInput = prompt(`Insert position to place ship of ${shipLength} blocks\r Usage: x,y-x,y[...]`);
+      }
       const userInputPosition = convertUserInputToPosition(userInput);
       game.player1.ownGameboard.placeShip(shipLength, userInputPosition);
+
+      // Computer placing ships
       game.player2.ownGameboard.placeShipRandomPosition(shipLength);
     }
+    PvEprepareAttackListenerTiles(game, 2);
   } else {
     // PvP MODE
     while (shipsToPlaceArray.length !== 0) {
@@ -46,7 +58,7 @@ export const gameloop = (typeOfGame = false) => {
   }
   updateBoard(game.player1.ownGameboard.board, 1);
   updateBoard(game.player2.ownGameboard.board, 2);
-
+  /*
   //  depending on whether is a player or computer
   // 3) gameloop
   let winner;
@@ -54,9 +66,13 @@ export const gameloop = (typeOfGame = false) => {
     // PvE MODE
     while (true) {
       // P1 attack Computer
+      console.log('hello');
+      // AWAIT USER PROMISE TO ATTACK
+
       const player1Attack = prompt('Player 1: Insert position to hit');
       const player1AttackPosition = convertUserInputToPosition(player1Attack)[0];
       game.player1.attackEnemy(game.player2, player1AttackPosition);
+
       // check all sunk
       if (game.player2.ownGameboard.allSunk()) {
         winner = 'Player 1';
@@ -109,4 +125,41 @@ export const gameloop = (typeOfGame = false) => {
   updateBoard(game.player2.ownGameboard.board, 2);
   console.log(game);
   alert(`${winner} IS THE WINNER!!!!!`);
+*/
+};
+
+export const checkIfGameEnded = (game) => {
+  // 3) gameloop
+  let winner;
+
+  // check all sunk
+  if (game.player2.ownGameboard.allSunk()) {
+    winner = 'Player 1';
+    updateBoard(game.player1.ownGameboard.board, game.player1.ownGameboard.ships, 1);
+    updateBoard(game.player2.ownGameboard.board, game.player2.ownGameboard.ships, 2);
+    alert(`${winner} IS THE WINNER!!!!!`);
+    return true;
+  }
+  updateBoard(game.player1.ownGameboard.board, game.player1.ownGameboard.ships, 1);
+  updateBoard(game.player2.ownGameboard.board, game.player2.ownGameboard.ships, 2);
+
+  // Computer attack P1
+  let randomPositionToAttack = getRandomPosition();
+  while (true) {
+    if (checkRandomPosition(game.player1, randomPositionToAttack)) break;
+    randomPositionToAttack = getRandomPosition();
+  }
+
+  game.player2.attackEnemy(game.player1, randomPositionToAttack);
+  // check all sunk
+  if (game.player1.ownGameboard.allSunk()) {
+    winner = 'Player 2';
+    updateBoard(game.player1.ownGameboard.board, game.player1.ownGameboard.ships, 1);
+    updateBoard(game.player2.ownGameboard.board, game.player2.ownGameboard.ships, 2);
+    alert(`${winner} IS THE WINNER!!!!!`);
+    return true;
+  }
+
+  updateBoard(game.player1.ownGameboard.board, game.player1.ownGameboard.ships, 1);
+  updateBoard(game.player2.ownGameboard.board, game.player2.ownGameboard.ships, 2);
 };

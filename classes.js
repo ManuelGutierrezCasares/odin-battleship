@@ -35,7 +35,7 @@ export class Gameboard {
       this.#placeTokenOnBoard(TOKENS.ship, pos);
     });
 
-    return shipObj;
+    return true;
   }
 
   receiveAttack (position) {

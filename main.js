@@ -1,6 +1,6 @@
 import { gameloop } from './game.js';
-import { display } from './display.js';
 
-display();
+// TODO: NEED TO ADD A BETTER USER INPUT UX
+// TODO: NEED TO DELETE textContent on enemy board
 
-gameloop(true);
+export const actualGame = gameloop(true);
