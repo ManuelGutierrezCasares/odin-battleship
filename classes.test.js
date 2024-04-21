@@ -36,22 +36,22 @@ describe('Gameboard Class', () => {
     test('Gameboard Place ship - Happy Path - ship length 1', () => {
       const gameboard = new Gameboard();
       const positions = [[0, 1]];
-      expect(gameboard.placeShip(1, positions)).toEqual({ positions: [[0, 1]], shipObject: { hits: 0, length: 1 } });
+      expect(gameboard.placeShip(1, positions)).toBe(true);
     });
     test('Gameboard Place ship - Happy Path - ship length 2', () => {
       const gameboard = new Gameboard();
       const positions = [[0, 1], [0, 2]];
-      expect(gameboard.placeShip(2, positions)).toEqual({ positions: [[0, 1], [0, 2]], shipObject: { hits: 0, length: 2 } });
+      expect(gameboard.placeShip(2, positions)).toBe(true);
     });
     test('Gameboard Place ship - Happy Path - ship length 3', () => {
       const gameboard = new Gameboard();
       const positions = [[0, 1], [0, 2], [0, 3]];
-      expect(gameboard.placeShip(3, positions)).toEqual({ positions: [[0, 1], [0, 2], [0, 3]], shipObject: { hits: 0, length: 3 } });
+      expect(gameboard.placeShip(3, positions)).toBe(true);
     });
     test('Gameboard Place ship - Happy Path - ship length 4', () => {
       const gameboard = new Gameboard();
       const positions = [[0, 1], [0, 2], [0, 3], [0, 4]];
-      expect(gameboard.placeShip(4, positions)).toEqual({ positions: [[0, 1], [0, 2], [0, 3], [0, 4]], shipObject: { hits: 0, length: 4 } });
+      expect(gameboard.placeShip(4, positions)).toBe(true);
     });
     test('Gameboard Place ship - Happy Path - length higher than 4', () => {
       const gameboard = new Gameboard();
@@ -75,7 +75,7 @@ describe('Gameboard Class', () => {
         const computer = new Player(true);
         const selectedShip = SHIP_TYPES.availableShips.battleship;
         // Cannot test random values on this function... testing with shipObject property instead
-        expect(computer.ownGameboard.placeShipRandomPosition(selectedShip)).toMatchObject({ shipObject: { hits: 0, length: 4 } });
+        expect(computer.ownGameboard.placeShipRandomPosition(selectedShip.length)).toBe(true);
       });
 
       test('Computer Random Ship Placement - No argument passed', () => {
@@ -231,7 +231,7 @@ describe('Player Class', () => {
       test('Player Attack - Hit Misses - Happy Path 2', () => {
         const player = new Player();
         const foe = new Player();
-        foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship);
+        foe.ownGameboard.placeShipRandomPosition(SHIP_TYPES.availableShips.battleship.length);
         expect(player.attackEnemy(foe, [1, 5])).toBe(false);
       });
     });

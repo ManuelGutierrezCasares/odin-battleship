@@ -93,8 +93,6 @@ export const createShipPreview = (shipLength, tagId) => {
   div.draggable = 'true';
   div.style.width = `${imgWidth}px`;
   div.style.height = '32px';
-  // div.textContent = 'drag';
-  // div.style.color = 'white';
   div.style.marginTop = '10px';
   div.style.marginBottom = '5px';
   div.style.display = 'flex';

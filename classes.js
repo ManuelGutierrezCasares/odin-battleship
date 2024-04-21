@@ -76,7 +76,8 @@ export class Gameboard {
       while (!this.#validateEmptyTiles(shipRandomPosition)) {
         shipRandomPosition = this.#createRandomPositions(shipLength);
       }
-      return this.placeShip(shipLength, shipRandomPosition);
+      this.placeShip(shipLength, shipRandomPosition);
+      return true;
     } catch (error) {
       throw new Error(error);
     }

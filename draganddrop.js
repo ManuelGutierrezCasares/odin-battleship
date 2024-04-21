@@ -14,20 +14,11 @@ export const createShipsPreview = (SHIP_TYPES) => {
     wrapper.appendChild(shipPreview);
     wrapper.appendChild(directionButton);
   }
-
-  // const draggable = document.getElementById('draggable-1');
-  // draggable.textContent = shipLength;
-  // draggable.ondragstart = dragstartHandler;
 };
 
 export const createGameInstructions = () => {
   const div = document.getElementById('instructions');
   div.textContent = 'Place your ships on your board by dragging the dark blue part of each ship into the board';
-};
-
-export const dropShip = (board, coordinates, orientation, shipLength) => {
-  // if (orientation === 'vertical')
-  // if (orientation === 'horizontal')
 };
 
 export function dragstartHandler (e) {
@@ -40,8 +31,6 @@ export function dragstartHandler (e) {
 export function dragoverHandler (ev) {
   ev.preventDefault();
   ev.dataTransfer.dropEffect = 'move';
-
-  // console.log(ev.dataTransfer.getData('text'));
 };
 
 export function dropHandler (ev, game) {
@@ -72,11 +61,33 @@ export function dropHandler (ev, game) {
 
   if (checkDivs()) {
     alert('time to play');
+    updateGameInstructions();
     PvEprepareAttackListenerTiles(game, 2);
   }
   updateBoard(game.player1.ownGameboard.board, game.player1.ownGameboard.ships, 1);
   updateBoard(game.player2.ownGameboard.board, game.player2.ownGameboard.ships, 2);
-  // return startingPositionToPlaceShip;
+};
+
+const updateGameInstructions = () => {
+  const wrapper = document.getElementById('instructions');
+  wrapper.textContent = 'References To The Game:';
+  const colors = {
+    grey: 'miss',
+    orange: 'hit',
+    red: 'sink'
+  };
+  for (const color in colors) {
+    const div = document.createElement('div');
+    const span = document.createElement('span');
+
+    div.style.width = '32px';
+    div.style.height = '32px';
+    div.style.backgroundColor = color;
+    div.style.marginTop = '10px';
+    span.textContent = colors[color];
+    wrapper.appendChild(div);
+    wrapper.appendChild(span);
+  }
 };
 
 const deleteCurrentShip = (id) => {
